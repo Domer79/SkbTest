@@ -25,7 +25,7 @@ namespace IntelliSenseHelper
         {
             var count = int.Parse(Lines[0]);
             int i;
-            for (i = 1; i < count; i++)
+            for (i = 1; i <= count; i++)
             {
                 var word = Lines[i].Split(' ')[0];
                 var countWords = int.Parse(Lines[i].Split(' ')[1]);
