@@ -1,23 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Enumerable = System.Linq.Enumerable;
 
 namespace IntelliSenseHelper
 {
     public class UserWordCollection : ICollection<UserWord>
     {
-        private readonly int _count;
-//        private readonly List<UserWord> _list = new List<UserWord>();
-        private readonly HashSet<UserWord> _hash = new HashSet<UserWord>();
+        private readonly Dictionary<string, UserWord> _hash = new Dictionary<string, UserWord>();
+        private readonly List<string> _lines;
+        private readonly int _wordInfoCount;
 
         public UserWordCollection(List<string> lines)
         {
-            var wordInfoCount = int.Parse(lines[0]);
-            _count = int.Parse(lines[wordInfoCount + 1]);
+            _lines = lines;
+            _wordInfoCount = int.Parse(lines[0]);
+        }
 
-            for (int i = wordInfoCount + 2; i < lines.Count; i++)
-            {
-                Add(new UserWord(lines[i]/*, i*/));
-            }
+        private void SetSimilarWords(UserWord userWord)
+        {
+            var letterInfos = LetterInfo.StartsWith(userWord.Word).Take(10);
+            userWord.SimilarWords.AddRange(letterInfos);
         }
 
         /// <summary>
@@ -28,8 +35,20 @@ namespace IntelliSenseHelper
         /// </returns>
         public IEnumerator<UserWord> GetEnumerator()
         {
-//            return _list.GetEnumerator();
-            return _hash.GetEnumerator();
+            for (int i = _wordInfoCount + 2; i < _lines.Count; i++)
+            {
+                var word = _lines[i];
+                if (_hash.ContainsKey(word))
+                {
+                    yield return _hash[word];
+                    continue;
+                }
+
+                var userWord = new UserWord(word);
+                Add(userWord);
+                SetSimilarWords(userWord);
+                yield return userWord;
+            }
         }
 
         /// <summary>
@@ -49,8 +68,7 @@ namespace IntelliSenseHelper
         /// <param name="item">Объект, добавляемый в коллекцию <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.ICollection`1"/> доступен только для чтения.</exception>
         public void Add(UserWord item)
         {
-//            _list.Add(item);
-            _hash.Add(item);
+            _hash.Add(item.Word, item);
         }
 
         /// <summary>
@@ -59,7 +77,6 @@ namespace IntelliSenseHelper
         /// <exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.ICollection`1"/> доступен только для чтения.</exception>
         public void Clear()
         {
-//            _list.Clear();
             _hash.Clear();
         }
 
@@ -72,8 +89,7 @@ namespace IntelliSenseHelper
         /// <param name="item">Объект, который требуется найти в <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
         public bool Contains(UserWord item)
         {
-//            return _list.Contains(item);
-            return _hash.Contains(item);
+            return _hash.ContainsKey(item.Word);
         }
 
         /// <summary>
@@ -82,8 +98,7 @@ namespace IntelliSenseHelper
         /// <param name="array">Одномерный массив <see cref="T:System.Array"/>, в который копируются элементы из интерфейса <see cref="T:System.Collections.Generic.ICollection`1"/>. Массив <see cref="T:System.Array"/> должен иметь индексацию, начинающуюся с нуля.</param><param name="arrayIndex">Отсчитываемый от нуля индекс в массиве <paramref name="array"/>, указывающий начало копирования.</param><exception cref="T:System.ArgumentNullException">Параметр <paramref name="array"/> имеет значение null.</exception><exception cref="T:System.ArgumentOutOfRangeException">Значение параметра <paramref name="arrayIndex"/> меньше 0.</exception><exception cref="T:System.ArgumentException">Количество элементов в исходной коллекции <see cref="T:System.Collections.Generic.ICollection`1"/> превышает доступное место, начиная с индекса <paramref name="arrayIndex"/> до конца массива назначения <paramref name="array"/>.</exception>
         public void CopyTo(UserWord[] array, int arrayIndex)
         {
-//            _list.CopyTo(array, arrayIndex);
-            _hash.CopyTo(array, arrayIndex);
+            _hash.Values.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
@@ -95,8 +110,7 @@ namespace IntelliSenseHelper
         /// <param name="item">Объект, который необходимо удалить из коллекции <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.ICollection`1"/> доступен только для чтения.</exception>
         public bool Remove(UserWord item)
         {
-//            return _list.Remove(item);
-            return _hash.Remove(item);
+            return _hash.Remove(item.Word);
         }
 
         /// <summary>
@@ -109,9 +123,7 @@ namespace IntelliSenseHelper
         {
             get
             {
-//                return _list.Count;
                 return _hash.Count;
-//                return _count;
             }
         }
 

@@ -11,9 +11,9 @@ namespace IntelliSenseHelper
     public class LetterInfo
     {
         private readonly char _letter;
-        private object _parent;
-        private int _count;
-        public SortedList<char, LetterInfo> _letters;
+        private readonly LetterInfo _parent;
+        public int Count;
+        private readonly SortedList<char, LetterInfo> _letters;
         public static LetterInfo Instance = new LetterInfo('\0', null);
 
         private LetterInfo(char letter, LetterInfo parent)
@@ -21,7 +21,7 @@ namespace IntelliSenseHelper
             _letter = letter;
             _letters = new SortedList<char, LetterInfo>();
             _parent = parent;
-            _count = -1;
+            Count = -1;
         }
 
 //        public char Letter
@@ -56,7 +56,7 @@ namespace IntelliSenseHelper
         {
             if (chars.Count == 0)
             {
-                letter._count = count;
+                letter.Count = count;
                 return;
             }
 
@@ -65,22 +65,70 @@ namespace IntelliSenseHelper
             Add(chars, newLetter, count);
         }
 
-        private static readonly StringWriter Writer = new StringWriter(new StringBuilder());
-
-        public static IEnumerable<string> Enumeration(LetterInfo letterInfo)
+        public string GetWord()
         {
-            Writer.GetStringBuilder().Clear();
+            var stack = new Stack<char>();
+            return GetWord(stack, this);
+        }
+
+        private static string GetWord(Stack<char> stack, LetterInfo letterInfo)
+        {
+            while (true)
+            {
+                if (letterInfo._letter == default(char))
+                    return new string(stack.ToArray());
+
+                stack.Push(letterInfo._letter);
+                letterInfo = letterInfo._parent;
+            }
+        }
+
+        public static IEnumerable<LetterInfo> StartsWith(string word)
+        {
+            var letterInfo = GetLetterInfoByWord(word);
+            return letterInfo == null ? new LetterInfo[] {} : Enumeration(letterInfo);
+        }
+
+        private static LetterInfo GetLetterInfoByWord(string word)
+        {
+            return GetLetterInfo(word.ToList(), Instance);
+        }
+
+        private static LetterInfo GetLetterInfo(List<char> chars, LetterInfo letterInfo)
+        {
+            if (chars.Count == 0)
+                return letterInfo;
+
+            LetterInfo nextLetterInfo;
+            if (!letterInfo._letters.TryGetValue(chars[0], out nextLetterInfo))
+                return null;
+            
+            chars.Remove(chars[0]);
+            return GetLetterInfo(chars, nextLetterInfo);
+        }
+
+        /// <summary>
+        /// Возвращает строку, которая представляет текущий объект.
+        /// </summary>
+        /// <returns>
+        /// Строка, представляющая текущий объект.
+        /// </returns>
+        public override string ToString()
+        {
+            return GetWord();
+        }
+
+        private static readonly List<LetterInfo> EnumerationList = new List<LetterInfo>();
+
+        public static IEnumerable<LetterInfo> Enumeration(LetterInfo letterInfo)
+        {
+            EnumerationList.Clear();
             Enumerate(letterInfo, string.Empty
 #if DEBUG
                 , 0
 #endif
                 );
-            var stringReader = new StringReader(Writer.GetStringBuilder().ToString());
-            string str;
-            while ((str = stringReader.ReadLine()) != null)
-            {
-                yield return str;
-            }
+            return EnumerationList.OrderByDescending(li => li.Count);
         }
 
         private static void Enumerate(LetterInfo letterInfo, string buffer
@@ -90,9 +138,9 @@ namespace IntelliSenseHelper
             )
         {
             buffer += letterInfo._letter;
-            if (letterInfo._count != -1)
+            if (letterInfo.Count != -1)
             {
-                Writer.WriteLine(buffer.Substring(1));
+                EnumerationList.Add(letterInfo);
             }
 
             for (int i = 0; i < letterInfo._letters.Count; i++)

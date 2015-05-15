@@ -5,50 +5,65 @@ using System.Threading.Tasks;
 
 namespace IntelliSenseHelper
 {
-    public struct UserWord
+    public class UserWord
     {
-        private readonly string _word;
-//        private readonly int _number;
-//        private readonly List<WordInfo> _similarList;
+        public readonly string Word;
 
-        public UserWord(string word/*, int number*/)
+        public UserWord(string word)
         {
-            _word = word;
-//            _number = number;
-//            _similarList = new List<WordInfo>();
-//            InitSimilarList();
+            Word = word;
         }
 
-//        private async void InitSimilarList()
-//        {
-//            List<WordInfo> similarList1 = _similarList;
-//            var number = _number;
-//            await GetSimilarList().ContinueWith((wi) =>
-//            {
-//                similarList1.AddRange(wi.Result);
-//                string s = number + "\r\n";
-//                Console.WriteLine(similarList1.Aggregate(s, (c,n) => c + "\r\n" + n));
-//                Console.WriteLine();
-//            });
-//        }
-//
-//        private async Task<IEnumerable<WordInfo>> GetSimilarList()
-//        {
-//            var word = _word;
-//            var enumerable = await Task.Run(() => Helper.WordInfoCollection.Where(wi => wi.Word.StartsWith(word))
-////                .OrderBy(wi => wi.Count)
-//                .Take(10));
-//            return enumerable;
-//        }
+        public List<LetterInfo> SimilarWords = new List<LetterInfo>();
 
-        public string Word
+        /// <summary>
+        /// Возвращает строку, которая представляет текущий объект.
+        /// </summary>
+        /// <returns>
+        /// Строка, представляющая текущий объект.
+        /// </returns>
+        public override string ToString()
         {
-            get { return _word; }
+            return ToString("");
         }
 
-//        public List<WordInfo> SimilarList
-//        {
-//            get { return _similarList; }
-//        }
+        /// <summary>
+        /// "" - возврщает слово, 
+        /// "words" - Возвращает слова, которые начинаются с этого слова, 
+        /// "detail" - Возвращает слова, которые начинаются с этого слова, с детальной информацией
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public string ToString(string format)
+        {
+            switch (format)
+            {
+                case "":
+                {
+                    return Word;
+                }
+                case "words":
+                {
+                    return SimilarWords.Aggregate("", (c, n) => c + "\r\n" + n) + "\r\n";
+                }
+                case "detail":
+                {
+                    return SimilarWords.Aggregate("\r\n" + Word + "\r\n------------------------", (c, n) => c + "\r\n" + n.ToString() + " " + n.Count) + "\r\n";
+                }
+                default:
+                    return Word;
+            }
+        }
+
+        /// <summary>
+        /// Играет роль хэш-функции для определенного типа.
+        /// </summary>
+        /// <returns>
+        /// Хэш-код для текущего объекта <see cref="T:System.Object"/>.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return Word.GetHashCode();
+        }
     }
 }
