@@ -15,32 +15,50 @@ namespace SkbTest
 
         static void Main(string[] args)
         {
-            var list = new List<int>();
-            var rnd = new Random();
-            var sortNumber = new SortNumber(rnd.Next(1, 1000000), null);
-
+            Console.ReadKey();
             var stopwatch = Stopwatch.StartNew();
 
-            for (int i = 1; i < 1000000; i++)
-            {
-//                list.Add(rnd.Next(1, 1000000));
-                sortNumber.Add(rnd.Next(1, 1000000));
-            }
+/*********************************************************************************************/
+            _userWordCollection = TestHelper.UserWordCollection;
 
-//**************************************************************************************************
-//            _userWordCollection = Helper.UserWordCollection;
-//
-//
+
 //            foreach (var word in _userWordCollection)
 //            {
 //                Console.WriteLine(word.ToString("words"));
 //            }
 
-//            File.WriteAllLines("result.txt", _userWordCollection.Select(word => word.ToString("l")));
-//**************************************************************************************************            
-//            var sortedList = list.OrderBy(i => i).ToList();
+            TestHelper.UserWordsWrite();
+
+//            File.WriteAllLines("result.txt", _userWordCollection.Select(word => word.ToString("detail")));
+/*********************************************************************************************/
+
+//            #region Sort Number Testing
+//
+//            const int count = 10000000;
+//            var rnd = new Random();
+//            var sortNumber = new SortNumber(rnd.Next(1, count));
+////            var list = new SortedSet<int>();
+//            for (int i = 0; i < count; i++)
+//            {
+//                sortNumber.Add(rnd.Next(1, count));
+////                list.Add(rnd.Next(1, count));
+//            }
+//
+//            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+//            stopwatch.Restart();
+//
+//            foreach (var i in sortNumber)
+//            {
+//
+//            }
+//
+////            list.OrderBy(i => i).ToList();
+//
+//            #endregion
+
 
             Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
             Console.ReadKey();
         }
     }
@@ -48,14 +66,13 @@ namespace SkbTest
     public class SortNumber : IEnumerable<int>
     {
         private readonly int _number;
-        private SortNumber _parent;
         private SortNumber _lessNumber;
         private SortNumber _moreNumber;
+        private List<int> _enumerationList;
 
-        public SortNumber(int number, SortNumber parent)
+        public SortNumber(int number)
         {
             _number = number;
-            _parent = parent;
         }
 
         public void Add(int number)
@@ -73,7 +90,7 @@ namespace SkbTest
         {
             if (sortNumber == null)
             {
-                sortNumber = new SortNumber(number, this);
+                sortNumber = new SortNumber(number);
                 return;
             }
 
@@ -88,18 +105,25 @@ namespace SkbTest
         /// </returns>
         public IEnumerator<int> GetEnumerator()
         {
-            yield return GetNumber();
+            return Enumeration().GetEnumerator();
         }
 
-        private int GetNumber()
+        private IEnumerable<int> Enumeration()
+        {
+            _enumerationList = new List<int>();
+            Enumerate(_enumerationList);
+            return _enumerationList;
+        }
+
+        private void Enumerate(List<int> enumerationList)
         {
             if (_lessNumber != null)
-                return _lessNumber.GetNumber();
+                _lessNumber.Enumerate(enumerationList);
+
+            enumerationList.Add(_number);
 
             if (_moreNumber != null)
-                return _moreNumber.GetNumber();
-
-            return _number;
+                _moreNumber.Enumerate(enumerationList);
         }
 
         /// <summary>
@@ -111,57 +135,6 @@ namespace SkbTest
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-    }
-
-    public class IntEnum : IEnumerator<int>
-    {
-        /// <summary>
-        /// Выполняет определяемые приложением задачи, связанные с высвобождением или сбросом неуправляемых ресурсов.
-        /// </summary>
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Перемещает перечислитель к следующему элементу коллекции.
-        /// </summary>
-        /// <returns>
-        /// Значение true, если перечислитель был успешно перемещен к следующему элементу; значение false, если перечислитель достиг конца коллекции.
-        /// </returns>
-        /// <exception cref="T:System.InvalidOperationException">Коллекция была изменена после создания перечислителя.</exception>
-        public bool MoveNext()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Устанавливает перечислитель в его начальное положение, т. е. перед первым элементом коллекции.
-        /// </summary>
-        /// <exception cref="T:System.InvalidOperationException">Коллекция была изменена после создания перечислителя.</exception>
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Получает элемент коллекции, соответствующий текущей позиции перечислителя.
-        /// </summary>
-        /// <returns>
-        /// Элемент коллекции, соответствующий текущей позиции перечислителя.
-        /// </returns>
-        public int Current { get; private set; }
-
-        /// <summary>
-        /// Получает текущий элемент в коллекции.
-        /// </summary>
-        /// <returns>
-        /// Текущий элемент в коллекции.
-        /// </returns>
-        object IEnumerator.Current
-        {
-            get { return Current; }
         }
     }
 }

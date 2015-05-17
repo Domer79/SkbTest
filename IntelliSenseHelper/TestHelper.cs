@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace IntelliSenseHelper
 {
-    public static class Helper
+    public static class TestHelper
     {
+//        public static string FileName;
         private const string FileName = "test.in";
 
         private static readonly List<string> Lines = new List<string>(File.ReadLines(FileName));
@@ -16,7 +17,7 @@ namespace IntelliSenseHelper
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="T:System.Object"/>.
         /// </summary>
-        static Helper()
+        static TestHelper()
         {
             PrepareData();
         }
@@ -32,21 +33,22 @@ namespace IntelliSenseHelper
                 LetterInfo.Add(word, countWords);
             }
 
-            UserWordCollection = GetUserWordCollection();
+            UserWordCollection = new UserWordCollection();
+            for (int j = count + 2; j < Lines.Count; j++)
+            {
+                UserWordCollection.Add(Lines[j]);
+            }
         }
 
-        private static UserWordCollection GetUserWordCollection()
+        public static void UserWordsWrite()
         {
-            return new UserWordCollection(Lines);
-        }
-
-        private static WordInfoCollection GetWordInfoCollection()
-        {
-            return new WordInfoCollection(Lines);
+            var count = int.Parse(Lines[0]);
+            for (int i = count + 2; i < Lines.Count; i++)
+            {
+                Console.WriteLine(UserWordCollection[Lines[i]].ToString("words"));
+            }
         }
 
         public static UserWordCollection UserWordCollection { get; set; }
-
-        public static WordInfoCollection WordInfoCollection { get; set; }
     }
 }

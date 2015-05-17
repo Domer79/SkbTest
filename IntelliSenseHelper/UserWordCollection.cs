@@ -12,20 +12,14 @@ namespace IntelliSenseHelper
     public class UserWordCollection : ICollection<UserWord>
     {
         private readonly Dictionary<string, UserWord> _hash = new Dictionary<string, UserWord>();
-        private readonly List<string> _lines;
-        private readonly int _wordInfoCount;
+//        private readonly List<string> _lines;
+//        private readonly int _wordInfoCount;
 
-        public UserWordCollection(List<string> lines)
-        {
-            _lines = lines;
-            _wordInfoCount = int.Parse(lines[0]);
-        }
-
-        private void SetSimilarWords(UserWord userWord)
-        {
-            var letterInfos = LetterInfo.StartsWith(userWord.Word).Take(10);
-            userWord.SimilarWords.AddRange(letterInfos);
-        }
+//        public UserWordCollection(List<string> lines)
+//        {
+//            _lines = lines;
+//            _wordInfoCount = int.Parse(lines[0]);
+//        }
 
         /// <summary>
         /// Возвращает перечислитель, выполняющий итерацию в коллекции.
@@ -33,22 +27,26 @@ namespace IntelliSenseHelper
         /// <returns>
         /// Интерфейс <see cref="T:System.Collections.Generic.IEnumerator`1"/>, который может использоваться для перебора элементов коллекции.
         /// </returns>
+//        public IEnumerator<UserWord> GetEnumerator()
+//        {
+//            for (int i = _wordInfoCount + 2; i < _lines.Count; i++)
+//            {
+//                var word = _lines[i];
+//                if (_hash.ContainsKey(word))
+//                {
+//                    yield return _hash[word];
+//                    continue;
+//                }
+//
+//                var userWord = new UserWord(word);
+//                Add(userWord);
+//                yield return userWord;
+//            }
+//        }
+
         public IEnumerator<UserWord> GetEnumerator()
         {
-            for (int i = _wordInfoCount + 2; i < _lines.Count; i++)
-            {
-                var word = _lines[i];
-                if (_hash.ContainsKey(word))
-                {
-                    yield return _hash[word];
-                    continue;
-                }
-
-                var userWord = new UserWord(word);
-                Add(userWord);
-                SetSimilarWords(userWord);
-                yield return userWord;
-            }
+            return _hash.Values.GetEnumerator();
         }
 
         /// <summary>
@@ -62,13 +60,29 @@ namespace IntelliSenseHelper
             return GetEnumerator();
         }
 
+        public void Add(string word)
+        {
+            var userWord = new UserWord(word);
+            Add(userWord);
+        }
+
         /// <summary>
         /// Добавляет элемент в коллекцию <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </summary>
         /// <param name="item">Объект, добавляемый в коллекцию <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.ICollection`1"/> доступен только для чтения.</exception>
         public void Add(UserWord item)
         {
+            if (_hash.ContainsKey(item.Word))
+                return;
+
             _hash.Add(item.Word, item);
+            SetSimilarWords(item);
+        }
+
+        private void SetSimilarWords(UserWord userWord)
+        {
+            var letterInfos = LetterInfo.StartsWith(userWord.Word).Take(10);
+            userWord.SimilarWords.AddRange(letterInfos);
         }
 
         /// <summary>
@@ -136,6 +150,15 @@ namespace IntelliSenseHelper
         public bool IsReadOnly
         {
             get { return false; }
+        }
+
+        public UserWord this[string word]
+        {
+            get
+            {
+                Add(word);
+                return _hash[word];
+            }
         }
     }
 }
