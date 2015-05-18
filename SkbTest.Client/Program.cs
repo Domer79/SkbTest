@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SkbTest.Client
 {
@@ -13,79 +6,59 @@ namespace SkbTest.Client
     {
         static void Main(string[] args)
         {
-            var client = new Client(args[0], int.Parse(args[1]));
-            var consoleKey = Console.ReadKey();
-            var prefix = string.Empty;
-            while (consoleKey.Key != ConsoleKey.Escape)
-            {
+            if (args.Length < 2)
+                throw new InvalidOperationException("Отсутствуют необходимые параметры");
 
-                if (consoleKey.Key == ConsoleKey.Enter)
-                {
-                    client.GetDictionaryData(prefix);
-                    prefix = string.Empty;
-                    Thread.Sleep(120000);
-                }
-
-                prefix += consoleKey.KeyChar;
-                consoleKey = Console.ReadKey();
-            }
-        }
-
-    }
-
-    public class Client
-    {
-        private readonly IPEndPoint _ipEndPoint;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="T:System.Object"/>.
-        /// </summary>
-        public Client(string ipOrHostName, int port)
-        {
             try
             {
-                var ipAddress = Dns.GetHostEntry(ipOrHostName).AddressList[0];
-                _ipEndPoint = new IPEndPoint(ipAddress, port);
+                var client = new Client(args[0], int.Parse(args[1]));
+                var consoleKey = Console.ReadKey();
+                var command = string.Empty;
+
+                while (consoleKey.Key != ConsoleKey.Escape)
+                {
+                    switch (consoleKey.Key)
+                    {
+                        case ConsoleKey.Enter:
+                        {
+                            client.GetDictionaryData(command + "\r\n");
+                            command = string.Empty;
+                            break;
+                        }
+                        case ConsoleKey.Backspace:
+                        {
+                            if (command.Length == 0)
+                                break;
+
+                            ConsoleLineClear(command);
+                            command = command.Substring(0, command.Length - 1);
+                            Console.Write(command);
+                            break;
+                        }
+                        default:
+                        {
+                            command += consoleKey.KeyChar;
+                            break;
+                        }
+                    }
+
+                    consoleKey = Console.ReadKey();
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
 
-        public void GetDictionaryData(string command)
+        private static void ConsoleLineClear(string line)
         {
-            var thread = new Thread(GetData);
-            thread.Start(command);
-        }
-
-        private void GetData(object command)
-        {
-            var tcpClient = new TcpClient(_ipEndPoint);
-            try
+            Console.SetCursorPosition(0, Console.CursorTop);
+            for (int i = 0; i < line.Length; i++)
             {
-                var data = Encoding.ASCII.GetBytes((string) command);
-                tcpClient.Connect(_ipEndPoint);
-                tcpClient.GetStream().Write(data, 0, data.Length);
-            
-                //read data
-
-                var buffer = new byte[1024];
-                int count;
-                var totalCount = 0;
-                var responseData = string.Empty;
-                while ((count = tcpClient.GetStream().Read(buffer, totalCount, buffer.Length)) > 0)
-                {
-                    totalCount += count;
-                    responseData += Encoding.ASCII.GetString(buffer);
-                }
-            
-                Console.WriteLine(responseData);
+                Console.Write(' ');
             }
-            finally
-            {
-                tcpClient.Close();
-            }
+            Console.SetCursorPosition(0, Console.CursorTop);
         }
     }
 }

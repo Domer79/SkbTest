@@ -1,49 +1,12 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Enumerable = System.Linq.Enumerable;
 
 namespace IntelliSenseHelper
 {
     public class UserWordCollection : ICollection<UserWord>
     {
         private readonly Dictionary<string, UserWord> _hash = new Dictionary<string, UserWord>();
-//        private readonly List<string> _lines;
-//        private readonly int _wordInfoCount;
-
-//        public UserWordCollection(List<string> lines)
-//        {
-//            _lines = lines;
-//            _wordInfoCount = int.Parse(lines[0]);
-//        }
-
-        /// <summary>
-        /// Возвращает перечислитель, выполняющий итерацию в коллекции.
-        /// </summary>
-        /// <returns>
-        /// Интерфейс <see cref="T:System.Collections.Generic.IEnumerator`1"/>, который может использоваться для перебора элементов коллекции.
-        /// </returns>
-//        public IEnumerator<UserWord> GetEnumerator()
-//        {
-//            for (int i = _wordInfoCount + 2; i < _lines.Count; i++)
-//            {
-//                var word = _lines[i];
-//                if (_hash.ContainsKey(word))
-//                {
-//                    yield return _hash[word];
-//                    continue;
-//                }
-//
-//                var userWord = new UserWord(word);
-//                Add(userWord);
-//                yield return userWord;
-//            }
-//        }
-
         public IEnumerator<UserWord> GetEnumerator()
         {
             return _hash.Values.GetEnumerator();

@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using IntelliSenseHelper;
 
 namespace SkbTest
@@ -11,58 +9,19 @@ namespace SkbTest
     //21523359.0 - возможных значений
     class Program
     {
-        private static UserWordCollection _userWordCollection;
-
         static void Main(string[] args)
         {
-            Console.ReadKey();
             var stopwatch = Stopwatch.StartNew();
-
-/*********************************************************************************************/
-            _userWordCollection = TestHelper.UserWordCollection;
-
-
-//            foreach (var word in _userWordCollection)
-//            {
-//                Console.WriteLine(word.ToString("words"));
-//            }
 
             TestHelper.UserWordsWrite();
 
-//            File.WriteAllLines("result.txt", _userWordCollection.Select(word => word.ToString("detail")));
-/*********************************************************************************************/
-
-//            #region Sort Number Testing
-//
-//            const int count = 10000000;
-//            var rnd = new Random();
-//            var sortNumber = new SortNumber(rnd.Next(1, count));
-////            var list = new SortedSet<int>();
-//            for (int i = 0; i < count; i++)
-//            {
-//                sortNumber.Add(rnd.Next(1, count));
-////                list.Add(rnd.Next(1, count));
-//            }
-//
-//            Console.WriteLine(stopwatch.ElapsedMilliseconds);
-//            stopwatch.Restart();
-//
-//            foreach (var i in sortNumber)
-//            {
-//
-//            }
-//
-////            list.OrderBy(i => i).ToList();
-//
-//            #endregion
-
-
             Console.WriteLine(stopwatch.ElapsedMilliseconds);
-
-            Console.ReadKey();
         }
     }
 
+    /// <summary>
+    /// Класс для сортировки коллекции чисел, сама сортировка происходит быстро, но работа класса замедляется добавлением элементов в бинарное дерево
+    /// </summary>
     public class SortNumber : IEnumerable<int>
     {
         private readonly int _number;

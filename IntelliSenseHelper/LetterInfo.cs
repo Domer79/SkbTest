@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IntelliSenseHelper
 {
@@ -24,20 +19,11 @@ namespace IntelliSenseHelper
             Count = -1;
         }
 
-//        public char Letter
-//        {
-//            get { return _letter; }
-//        }
-
         private LetterInfo Add(char letter, LetterInfo parent)
         {
             LetterInfo letterInfo;
             if (_letters.TryGetValue(letter, out letterInfo))
                 return letterInfo;
-
-//            var letterInfo = _letters.Find(l => l._letter == letter);
-//            if (letterInfo._letter != default(char))
-//                return letterInfo;
 
             var li = new LetterInfo(letter, parent);
             _letters.Add(letter, li);
