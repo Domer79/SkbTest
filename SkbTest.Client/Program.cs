@@ -12,53 +12,26 @@ namespace SkbTest.Client
             try
             {
                 var client = new Client(args[0], int.Parse(args[1]));
-                var consoleKey = Console.ReadKey();
-                var command = string.Empty;
 
-                while (consoleKey.Key != ConsoleKey.Escape)
+                while (true)
                 {
-                    switch (consoleKey.Key)
-                    {
-                        case ConsoleKey.Enter:
-                        {
-                            client.GetDictionaryData(command + "\r\n");
-                            command = string.Empty;
-                            break;
-                        }
-                        case ConsoleKey.Backspace:
-                        {
-                            if (command.Length == 0)
-                                break;
+                    var command = Console.ReadLine();
 
-                            ConsoleLineClear(command);
-                            command = command.Substring(0, command.Length - 1);
-                            Console.Write(command);
-                            break;
-                        }
-                        default:
-                        {
-                            command += consoleKey.KeyChar;
-                            break;
-                        }
-                    }
+                    if (string.IsNullOrEmpty(command))
+                        continue;
 
-                    consoleKey = Console.ReadKey();
+                    var lowerWord = command.ToLower();
+
+                    if (lowerWord == "exit" || lowerWord == "quit")
+                        break;
+
+                    client.GetDictionaryData(command + "\r\n");
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
-
-        private static void ConsoleLineClear(string line)
-        {
-            Console.SetCursorPosition(0, Console.CursorTop);
-            for (int i = 0; i < line.Length; i++)
-            {
-                Console.Write(' ');
-            }
-            Console.SetCursorPosition(0, Console.CursorTop);
         }
     }
 }

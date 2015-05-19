@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using IntelliSenseHelper;
 
 namespace SkbTest
@@ -11,11 +12,27 @@ namespace SkbTest
     {
         static void Main(string[] args)
         {
-            var stopwatch = Stopwatch.StartNew();
+//            var stopwatch = Stopwatch.StartNew();
 
-            TestHelper.UserWordsWrite();
+//            TestHelper.UserWordsWrite();
 
-            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            while (true)
+            {
+                var word = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(word))
+                    continue;
+
+                var lowerWord = word.ToLower();
+
+                if (lowerWord == "exit" || lowerWord == "quit")
+                    break;
+
+                Console.WriteLine(TestHelper.UserWordCollection[word].ToString("words"));
+            }
+
+//            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
         }
     }
 

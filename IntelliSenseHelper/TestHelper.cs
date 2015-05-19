@@ -7,7 +7,7 @@ namespace IntelliSenseHelper
     public static class TestHelper
     {
 //        public static string FileName;
-        private const string FileName = "test.in";
+        public static string FileName = "test.in";
 
         private static readonly List<string> Lines = new List<string>(File.ReadLines(FileName));
 
